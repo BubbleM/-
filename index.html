@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>全屏无缝轮播图</title>
+  <style>
+  *{
+	margin:0;
+	padding:0;
+	list-style-type:none;
+  }
+  .banner{
+	width:100%;
+	height:520px;
+	background:pink;
+	position:relative;
+  }
+  .banner ul{
+  /*百分之百相对于谁？相对于父盒子*/
+	width:500%;
+	position:absolute;
+	left:0;/*左侧对齐*/
+	top:0;/*顶部对齐*/
+  }
+  .banner ul li{
+	width:100%;
+	height:520px;
+	background:url('image/1.jpeg')no-repeat center center;
+	float:left;
+  }
+  .banner ul li:nth-child(2){
+	background-image:url('image/2.png');
+  }
+   .banner ul li:nth-child(3){
+	background-image:url('image/3.jpeg');
+  }
+   .banner ul li:nth-child(4){
+	background-image:url('image/4.png');
+  }
+
+
+  .banner ol{
+	width:88px;
+	height:22px;
+	background:rgba(0,0,0,.7);/*a是阿尔法，范围是0-1，设置为0.5表示为半透明*/
+	/*子绝父相 如果当前盒子加了一个绝对定位，那么父盒子要加一个相对定位*/
+	position:absolute;
+	left:50%;/*将盒子放在左侧50%位置，要让它居中显示，需要让其再向左走自身的一半的位置*/
+	margin-left:-64px;/*往左侧走*/
+	bottom:18px;
+	padding:0 20px;
+	border-radius:11px;/*设置盒子周围为圆角*/
+  }
+  .banner ol li{
+	width:12px;
+	height:12px;
+	background:rgba(255,255,255,.7);
+	float:left;/*竖着显示变成横着显示*/
+	margin:5px;/*上下左右都留5px，可以使其分开*/
+	border-radius:50%;/*正方形变成正圆的做法*/
+	cursor:pointer;
+  }/*设置下面盒子里的小圆点*/
+  .banner ol .current{
+	background:rgba(255,255,255,1);/*鼠标经过时透明度变高*/
+  }/*current是一个类，而ol下的li是一个标签，标签的 权重低于类*/
+  .banner i{
+	width:60px;
+	height:60px;
+	background:pink;
+	position:absolute;
+	top:50%;
+	margin-top:-30px;
+	cursor:pointer;/*鼠标经过时显示手型图像*/
+  }
+  .banner .left{
+	left:100px;
+	background:url('image/o.PNG')no-repeat top;
+  }
+  .banner .left:hover{
+	background-position:bottom;
+  }/*设置鼠标经过的时候显示图片的下半部分*/
+  .banner .right{
+	right:100px;
+	background:url('image/o.PNG')no-repeat top;
+  }
+  .banner .right:hover{
+	background-position:bottom;
+  }
+  /*可以简化代码
+  .banner .left:hover,.right:hover{
+	background-position:bottom;
+  }
+  */
+  </style>
+  <script src="jquery-3.1.0.min.js"></script>
+  <script>
+	 $(function(){
+		//1.获取窗口的宽度
+		var w = $(window).width();
+		alert(w);
+		//把获取的宽度给每一个li
+		$('.banner ul li').width( w );
+		//点击每一个轮播点，图片跟着变化
+		$('.banner ol li').click(function(){
+			//alert('点击了');
+		//点击哪一个，就是给哪一个增加current类
+		//同时其他的兄弟标签移出current类
+			$(this).addClass('current').siblings().removeClass('current');
+		//第一图左侧是0*一个图片的宽度
+		//第二图      1*w
+		//第三图      2*w
+		//每一个左侧走的值  i*w
+		//获取编号
+		var i=$(this).index();
+		//alert(i);
+		//把走动的值给left属性，然后得是负值
+		$('.banner ul').animate({left:-i*w},500);
+		});
+		//3.自动播放---定时器
+		var timer=null;
+		//累加器，用于让图片的编号自动走
+		var num=0;
+		//整个功能就是播放下一张
+		var autoPlay=function(){
+			num++;
+			//让整组动起来 num
+			//如果播放到最后一张，再往下播，回到第一张（这个过程肉眼是看不见的），从第一张播放到第二张。
+			if(num>4){
+				num=0;
+				$('.banner ul').css('left','0').animate({left:-w},500);
+			//播放过来之后告诉系统，我当前已经到了第二张
+			num=1;
+			//播放到第二张的时候，让轮播点在第二个上
+			$('.banner ol li').eq(1).addClass('current').siblings().removeClass('current');
+			}else{
+				//否则其他的情况只能是自动播放
+				$('.banner ul').animate({left:-num*w},500);
+				//通过编号来找对应的轮播点
+				$('.banner ol il').eq(num).addClass('current').siblings().removeClass('current');
+			}
+			console.log(num);
+			if(num==4){
+				//如果第五个，编号为4的时候，让轮播点在第一个
+			$('.banner ol li').eq(0).addClass('current').siblings().removeClass('current');
+			}
+		}
+		//播放上一张功能
+		var prevPlay=function(){
+			num--;
+			if(num<0){
+				num=4;
+				$('.banner ul').css({left:-4*w}).animate({left:-3*w},500);
+			//播放过来之后告诉系统，我当前已经到了第二张
+			num=3;
+			//播放到第二张的时候，让轮播点在第二个上
+			$('.banner ol li').eq(3).addClass('current').siblings().removeClass('current');
+			}else{
+				//否则其他的情况只能是自动播放
+				$('.banner ul').animate({left:-num*w},500);
+				//通过编号来找对应的轮播点
+				$('.banner ol il').eq(num).addClass('current').siblings().removeClass('current');
+			}
+			console.log(num);
+			if(num==0){
+			$('.banner ol li').eq(4).addClass('current').siblings().removeClass('current');
+			}
+		}
+		timer=setInterval(autoPlay,2000);
+		//4.鼠标经过大盒子i，停止（清楚定时器）
+		//离开继续播放
+		$('.banner').mouseenter(function(){
+			clearInterval(timer);
+		}).mouseleave(function(){
+			timer=setInterval(autoPlay,2000);
+		});
+		//向右播放，其实就是播放下一张
+		$('.banner .right').click(function(){
+			autoPlay();
+		});
+		//向左播放
+		$('.banner .left').click(function(){
+			prevPlay();
+		});
+	});
+  </script>
+
+ </head>
+ <body>
+	<div class="banner">
+		<ul>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+		<ol>
+			<li class="current"></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ol>
+		<i class="left"></i>
+		<i class="right"></i>
+	</div>
+ </body>
+</html>
